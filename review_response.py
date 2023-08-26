@@ -37,14 +37,16 @@ comments = parseComments(commentText)
 
 outputText = ''
 
+promptText = "Please assist me in writing my paper as a virtual co-author. Currently, we are in the revision stage. I will present both the comments from the reviewers and my manuscript below. Please answer every reviewers's question step-by-step in a scientific manner. During the response, indicate which parts of the manuscript were modified. \n"
+
 for comment in comments[0:2]:
     (commentId, commentText) = comment
     response = openai.ChatCompletion.create(
         model='gpt-4',
         #model='gpt-3.5-turbo',
         messages = [
-            {"role": "system", "content": "You are the author of the manuscript below. Users are reviewers of it.\n\n{}".format(manuscriptText)},
-            { "role": "user", "content": comment },
+            {"role": "system", "content": "{}\n{}".format(promptText, manuscriptText)},
+            { "role": "user", "content": commentText },
         ],
         n=1,
         temperature=0.5

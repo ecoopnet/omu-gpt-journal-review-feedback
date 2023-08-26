@@ -9,10 +9,9 @@ import openai
 import re
 
 def parseComments(text):
-    pattern = r'###(R\d.*?)(?=\n*###|$)'
+    pattern = r'###(R[^ ]+) +(.*?)(?=\n*###|$)'
 
     matches = re.findall(pattern, text, re.DOTALL)
-
     return matches
 
 # 入力ファイル名を取得する
@@ -26,7 +25,7 @@ comment_file = sys.argv[2]
 # base, ext = os.path.splitext(manuscript_file)
 # output_file = f"{base}.out.txt"
 dir = os.path.dirname(manuscript_file)
-output_file = f"{dir}/output.txt"
+output_file = f"{dir}/answers.txt"
 
 with open(manuscript_file, 'r') as f:
     manuscriptText = f.read()
@@ -36,12 +35,15 @@ with open(comment_file, 'r') as f:
 
 comments = parseComments(commentText)
 
+outputText = ''
+
 for comment in comments[0:2]:
+    (commentId, commentText) = comment
     response = openai.ChatCompletion.create(
         model='gpt-4',
         #model='gpt-3.5-turbo',
         messages = [
-            {"role": "system", "content": "You are the author of the manuscript below. Users are reviewer of it.\n\n{}".format(manuscriptText)},
+            {"role": "system", "content": "You are the author of the manuscript below. Users are reviewers of it.\n\n{}".format(manuscriptText)},
             { "role": "user", "content": comment },
         ],
         n=1,
@@ -49,7 +51,9 @@ for comment in comments[0:2]:
     )
     print(response)
     print(response.choices)
-    outputText = response.choices[0]["message"]["content"].strip()
+    answerText = response.choices[0]["message"]["content"].strip()
+    outputText += f'###{commentId}\n{answerText}\n\n'
+
 with open(output_file, 'w') as f:
         f.write(outputText + '\n')
 

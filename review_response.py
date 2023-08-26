@@ -39,7 +39,7 @@ outputText = ''
 
 promptText = "Please assist me in writing my paper as a virtual co-author. Currently, we are in the revision stage. I will present both the comments from the reviewers and my manuscript below. Please answer every reviewers's question step-by-step in a scientific manner. During the response, indicate which parts of the manuscript were modified. \n"
 
-for comment in comments[0:2]:
+for comment in comments:
     (commentId, commentText) = comment
     response = openai.ChatCompletion.create(
         model='gpt-4',
